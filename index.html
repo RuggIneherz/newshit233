@@ -1,0 +1,1120 @@
+<!doctype html>
+<!--
+Author: HerzMirov
+License Notice:
+- 本项目纯免费（100% FREE）
+- 禁止二次传播 / 禁止镜像搬运 / 禁止转售
+- 禁止任何商业用途
+-->
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>角色取名随机生成器</title>
+  <style>
+    :root{--b:#000;--w:#fff;--g:#f5f5f5;--line:1px solid #000;}
+    *{box-sizing:border-box}
+    body{margin:0;background:#fff;color:#000;font-family:Inter,"Helvetica Neue",Arial,sans-serif;letter-spacing:.02em}
+    .wrap{max-width:1160px;margin:0 auto;padding:28px 14px 70px}
+    h1{margin:0 0 10px;font-size:30px}
+    .top{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+    .block{border:var(--line);padding:12px;margin-bottom:10px}
+    .gray{background:var(--g)}
+    .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+    @media (max-width:1000px){.grid3{grid-template-columns:1fr 1fr}}
+    @media (max-width:760px){.grid3{grid-template-columns:1fr}}
+    button,input,select,textarea{
+      border:var(--line);background:#fff;color:#000;font:inherit;outline:none;border-radius:0
+    }
+    button{height:36px;padding:0 12px;background:#000;color:#fff;cursor:pointer}
+    button:hover{background:#fff;color:#000}
+    button:active{transform:translate(1px,1px)}
+    input,select{height:36px;padding:0 10px}
+    textarea{width:100%;min-height:80px;padding:8px;resize:vertical}
+    .small,.tip{font-size:12px}
+    .badge{border:var(--line);padding:3px 8px;font-size:12px}
+    .list{display:flex;flex-direction:column;gap:8px}
+    .item{border:var(--line);padding:8px}
+    .name{font-size:19px;font-weight:600}
+    .chips{display:flex;flex-wrap:wrap;gap:8px}
+    .chip{border:var(--line);padding:3px 7px;font-size:12px;display:inline-flex;align-items:center;gap:6px}
+    .chip button{height:22px;padding:0 7px;font-size:12px}
+    .tag{display:inline-block;border:1px solid #000;padding:1px 6px;font-size:11px;margin-right:6px}
+    .warn{font-size:11px;border:1px solid #000;padding:2px 6px}
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,.14);display:none;align-items:center;justify-content:center;padding:12px;z-index:99}
+    .modal.show{display:flex}
+    .panel{width:min(860px,100%);border:var(--line);background:#fff;padding:14px}
+    .panel h2{margin:4px 0 14px;text-align:center;font-size:40px;line-height:1.1}
+    .field{margin-bottom:10px}
+    .field label{display:block;margin-bottom:6px;font-weight:600}
+    .field input,.field select{width:100%;height:42px}
+  </style>
+</head>
+<body>
+<main class="wrap">
+  <div class="top">
+    <h1>角色取名随机生成器</h1>
+    <div class="row">
+      <span class="badge">作者：HerzMirov</span>
+      <span class="badge">纯免费</span>
+      <span class="badge">禁止二传</span>
+      <span class="badge">禁止商用</span>
+      <button id="btnOpenApi">API设置</button>
+    </div>
+  </div>
+
+  <section class="block gray">
+    <div class="row">
+      <label>模式</label>
+      <select id="mode">
+        <option value="cn">中文角色名</option>
+        <option value="en">英文名</option>
+        <option value="nick">昵称</option>
+      </select>
+
+      <label>命名引擎</label>
+      <select id="engine">
+        <option value="auto">自动（有API优先AI）</option>
+        <option value="local">仅本地词库</option>
+        <option value="ai">AI优先（失败回退本地）</option>
+      </select>
+
+      <label>风格</label>
+      <select id="style">
+        <option value="all">不限</option>
+        <option value="ancient">古风</option>
+        <option value="modern">现代</option>
+        <option value="republic">民国</option>
+        <option value="fantasy">奇幻</option>
+      </select>
+
+      <label>世界观（预设）</label>
+      <select id="worldview">
+        <option value="all">不限</option>
+        <option value="xianxia">仙侠</option>
+        <option value="wuxia">武侠</option>
+        <option value="republic">民国</option>
+        <option value="western">西幻</option>
+        <option value="steam">蒸汽朋克</option>
+        <option value="cyberpunk">赛博朋克</option>
+        <option value="campus">校园</option>
+        <option value="postapoc">末世</option>
+        <option value="abo">ABO</option>
+      </select>
+
+      <label>时代</label>
+      <select id="era">
+        <option value="all">不限</option>
+        <option value="modern">现代</option>
+        <option value="ancient">古代</option>
+        <option value="republic">民国</option>
+      </select>
+
+      <label>性别</label>
+      <select id="gender">
+        <option value="all">不限</option>
+        <option value="male">男</option>
+        <option value="female">女</option>
+        <option value="neutral">中性</option>
+      </select>
+
+      <label>中文名字字数</label>
+      <select id="cnGivenLen">
+        <option value="auto" selected>随机（1~2字）</option>
+        <option value="1">固定1字</option>
+        <option value="2">固定2字</option>
+      </select>
+
+      <label>展示数量</label>
+      <select id="displayCount"><option>5</option><option>8</option><option>10</option><option>15</option></select>
+
+      <label>批量候选</label>
+      <select id="batchCount"><option>30</option></select>
+
+      <label>去重强度</label>
+      <select id="dedupeStrength">
+        <option value="weak">弱</option>
+        <option value="mid" selected>中</option>
+        <option value="strong">强</option>
+      </select>
+
+      <label>最低质量</label>
+      <select id="scoreThreshold">
+        <option>55</option><option>60</option><option selected>65</option><option>70</option><option>75</option>
+      </select>
+
+      <label class="row"><input id="withZi" type="checkbox" style="width:16px;height:16px">古代/民国附“字”</label>
+
+      <button id="btnGenerate">随机生成</button>
+      <button id="btnClearResult">清空结果</button>
+      <button id="btnResetAll">恢复默认</button>
+      <span id="tip" class="tip"></span>
+    </div>
+
+    <div class="row" style="margin-top:8px">
+      <label>地域姓氏包</label>
+      <select id="surnamePack">
+        <option value="common">通用</option>
+        <option value="jiangnan">江南</option>
+        <option value="beidi">北地</option>
+        <option value="xiyu">西域</option>
+      </select>
+
+      <label>自定义姓氏</label>
+      <input id="fixedSurname" placeholder="如：刘 / 欧阳" style="width:130px">
+      <label class="row"><input id="lockSurname" type="checkbox" style="width:16px;height:16px">锁定姓氏</label>
+
+      <label class="row"><input id="enWithSurname" type="checkbox" style="width:16px;height:16px">英文带姓氏</label>
+      <label>英文姓氏地区</label>
+      <select id="enLastPack">
+        <option value="common">通用</option>
+        <option value="western">西式</option>
+        <option value="steam">蒸汽</option>
+        <option value="cyberpunk">赛博</option>
+      </select>
+
+      <label class="row"><input id="familyMode" type="checkbox" style="width:16px;height:16px">家族同辈分</label>
+      <input id="generationChar" placeholder="辈分字(单字可空)" style="width:120px">
+    </div>
+
+    <div class="row" style="margin-top:8px">
+      <label>临时排除字</label>
+      <input id="tempExcludeChars" placeholder="例：轩,瑶,宁 或 轩瑶宁（仅本次）" style="min-width:240px">
+      <label>临时排除词</label>
+      <input id="tempExcludeWords" placeholder="例：战神,王者（仅本次）" style="min-width:240px">
+      <span class="small">支持英文逗号 , 和中文逗号 ，</span>
+    </div>
+
+    <div class="row" style="margin-top:8px">
+      <label>自定义世界观文本</label>
+      <input id="customWorldText" placeholder="可同人世界观文本，自动用于AI（有API时）" style="min-width:420px">
+    </div>
+
+    <div class="row" style="margin-top:8px">
+      <label>中文参考名（中英映射）</label>
+      <input id="cnRefForEn" placeholder="例：刘清昭（英文模式可参考）" style="min-width:220px">
+      <button id="btnEnDerive">英文派生昵称（从结果）</button>
+    </div>
+  </section>
+
+  <section class="block">
+    <div style="font-weight:600;margin-bottom:8px">黑名单（字/词/姓氏）</div>
+    <div class="grid3">
+      <div>
+        <div class="row">
+          <input id="banCharInput" placeholder="黑名单字（单字）" style="width:170px">
+          <button id="btnAddBanChar">拉黑字</button>
+        </div>
+        <div id="banCharList" class="chips" style="margin-top:8px"></div>
+      </div>
+      <div>
+        <div class="row">
+          <input id="banWordInput" placeholder="黑名单词（如 战神）" style="width:170px">
+          <button id="btnAddBanWord">拉黑词</button>
+        </div>
+        <div id="banWordList" class="chips" style="margin-top:8px"></div>
+      </div>
+      <div>
+        <div class="row">
+          <input id="banSurnameInput" placeholder="黑名单姓（赵/欧阳）" style="width:170px">
+          <button id="btnAddBanSurname">拉黑姓</button>
+        </div>
+        <div id="banSurnameList" class="chips" style="margin-top:8px"></div>
+      </div>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <button id="btnExportBan">导出黑名单JSON</button>
+      <input id="importBanFile" type="file" accept=".json">
+      <button id="btnImportBan">导入黑名单JSON</button>
+      <button id="btnClearBan">清空黑名单</button>
+    </div>
+  </section>
+
+  <section class="block gray">
+    <div style="font-weight:600;margin-bottom:8px">词库包（导入更多词库）</div>
+    <div class="row">
+      <button id="btnExportLexicon">导出词库包JSON</button>
+      <input id="importLexiconFile" type="file" accept=".json">
+      <button id="btnImportLexicon">导入词库包JSON</button>
+      <span class="small">支持追加 surnames/chars/enFirst/enLast/nickCore</span>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="row" style="margin-bottom:8px">
+      <button id="btnCopyAll">复制全部</button>
+      <button id="btnSaveAllFav">全部收藏</button>
+      <label>收藏分组</label>
+      <select id="favGroupSelect"></select>
+      <input id="favTagsInput" placeholder="收藏标签，逗号分隔" style="min-width:200px">
+    </div>
+    <div id="resultList" class="list"><div class="item small">（结果在这里）</div></div>
+  </section>
+
+  <section class="block gray">
+    <div class="row" style="margin-bottom:8px">
+      <strong>收藏（分组+标签）</strong>
+      <input id="newGroupInput" placeholder="新分组名" style="width:140px">
+      <button id="btnAddGroup">新增分组</button>
+      <button id="btnDelGroup">删除当前分组</button>
+      <button id="btnClearFav">清空收藏</button>
+    </div>
+    <div class="row" style="margin-bottom:8px">
+      <label>查看分组</label>
+      <select id="viewGroupFilter"></select>
+      <label>标签筛选</label>
+      <input id="viewTagFilter" placeholder="输入标签" style="width:130px">
+    </div>
+    <div id="favList" class="list"></div>
+  </section>
+
+  <section class="block">
+    <div class="row" style="margin-bottom:8px">
+      <strong>历史</strong><button id="btnClearHis">清空历史</button>
+    </div>
+    <div id="hisList" class="list"></div>
+  </section>
+
+  <section class="block">
+    <div class="small">© HerzMirov ｜ 纯免费 ｜ 禁止二次传播 ｜ 禁止任何商业用途</div>
+  </section>
+</main>
+
+<!-- API设置（新版） -->
+<div id="apiModal" class="modal">
+  <div class="panel">
+    <h2>API设置</h2>
+
+    <div class="field">
+      <label>API地址</label>
+      <input id="apiBase" placeholder="https://xxx.com 或 https://xxx.com/v1" />
+    </div>
+
+    <div class="field">
+      <label>API密钥</label>
+      <input id="apiKey" type="password" placeholder="你的API Key" />
+    </div>
+
+    <div class="field">
+      <label>模型</label>
+      <div class="row" style="gap:8px">
+        <select id="apiModelSelect" style="flex:1;min-width:220px;">
+          <option value="">请拉取模型或手填</option>
+        </select>
+        <button id="btnPullModels" type="button">拉取模型</button>
+      </div>
+      <input id="apiModelManual" placeholder="手填模型名（可选）" style="margin-top:8px;" />
+    </div>
+
+    <div class="field">
+      <label>温度（<span id="apiTempLabel">0.75</span>）</label>
+      <input id="apiTempRange" type="range" min="0" max="2" step="0.01" value="0.75" />
+    </div>
+
+    <div class="row" style="margin-top:14px">
+      <button id="btnSaveApi">保存设置</button>
+      <button id="btnCloseApi">关闭</button>
+      <span class="small">未配置时自动走本地词库</span>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const LS = {
+    api:"ng_api_v8", fav:"ng_fav_v8", groups:"ng_groups_v8", his:"ng_his_v8",
+    recent:"ng_recent_v8", opts:"ng_opts_v8", ban:"ng_black_v8", lex:"ng_lex_extra_v8"
+  };
+
+  const $=id=>document.getElementById(id);
+  const tip=$("tip"), resultList=$("resultList"), favList=$("favList"), hisList=$("hisList");
+  const setTip=t=>{tip.textContent=t||""; if(t) setTimeout(()=>tip.textContent===t&&(tip.textContent=""),1600);}
+  const getLS=(k,d)=>{try{return JSON.parse(localStorage.getItem(k)) ?? d}catch{return d}};
+  const setLS=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
+  const pick=arr=>arr[Math.floor(Math.random()*arr.length)];
+  const now=()=>new Date().toLocaleString();
+
+  // --- 工具 ---
+  function parseCommaList(raw){
+    const s=(raw||"").trim();
+    if(!s) return [];
+    if(/[，,]/.test(s)) return s.split(/[，,]/).map(x=>x.trim()).filter(Boolean);
+    return [...s].filter(Boolean);
+  }
+
+  function hitTempExclude(name,tempCharsRaw,tempWordsRaw){
+    const chars=parseCommaList(tempCharsRaw);
+    const words=parseCommaList(tempWordsRaw);
+    for(const c of chars){ if(name.includes(c)) return true; }
+    for(const w of words){ if(name.includes(w)) return true; }
+    return false;
+  }
+
+  // ===== 基础词库 =====
+  const baseLex = {
+    surnamePacks:{
+      common:["赵","钱","孙","李","周","吴","郑","王","冯","陈","蒋","沈","韩","杨","朱","秦","许","何","吕","施","张","孔","曹","华","金","魏","陶","姜","谢","邹","章","云","苏","潘","范","彭","郎","鲁","韦","马","方","俞","任","袁","柳","唐","薛","雷","贺","倪","汤","滕","殷","罗","毕","安","常","于","时","傅","齐","康","伍","余","元","顾","孟","黄","穆","萧","尹","姚","邵","汪","祁","戴","宋","董","梁","杜","阮","蓝","闵"],
+      jiangnan:["沈","顾","陆","谢","许","苏","宋","程","周","方","章","严","潘","曹","蒋","韩","叶","乔","季","顾"],
+      beidi:["赵","燕","秦","魏","韩","邢","常","马","霍","尹","高","石","贺","雷","卢","郝","安","曹","姚","段"],
+      xiyu:["慕","宁","安","白","乌","阿","洛","顾","祁","沙","边","蓝","尉","司","陆","沈","唐","贺","穆","罗"]
+    },
+    doubleSurnames:["欧阳","司马","上官","诸葛","夏侯","慕容","尉迟","公孙"],
+    chars:{
+      male:{
+        ancient:["玄","承","景","砚","川","陵","珩","晏","昱","衡","曜","峥","翊","霄","澈","骁","肃","怀","瑾","行"],
+        modern:["宇","轩","泽","航","诚","昊","铭","杰","辰","烨","森","毅","睿","阳","博","宁","昀","祺","朗","霖"],
+        republic:["文","明","德","志","怀","远","成","国","书","正","修","启","元","诚","义","廷","绍","仁","伯","宗"],
+        fantasy:["烛","霜","岚","曜","渊","烬","翼","凛","宸","麟","魄","夜","岑","祈","弦","珀","羽","岱","澄","峦"]
+      },
+      female:{
+        ancient:["绾","清","婉","昭","璃","妤","芷","瑶","汐","棠","韵","若","绮","凝","泠","音","萱","雅","宁","然"],
+        modern:["悦","妍","宁","可","然","琪","瑾","欣","彤","语","菲","茉","伊","歆","珂","雅","沁","萌","希","晴"],
+        republic:["兰","雅","清","秀","文","静","慧","英","素","琴","玉","华","珍","淑","宁","如","曼","仪","美","芳"],
+        fantasy:["月","霜","岚","星","鸢","露","灵","雪","汐","瑾","澄","夜","歌","羽","梦","薇","悠","璃","岚","音"]
+      },
+      neutral:{
+        ancient:["安","言","澄","青","宁","简","行","予","迟","岫","知","闻","临","和","白","朴","执","归","时","砚"],
+        modern:["晨","宁","言","一","川","可","念","林","禾","予","昀","舟","夏","柠","宥","野","祈","岚","朵","澄"],
+        republic:["文","安","宁","和","清","远","知","明","简","平","之","元","礼","行","书","若","青","白","成","义"],
+        fantasy:["月","星","雾","岚","羽","歌","夜","澄","珀","灵","霁","雪","汐","曜","祈","弦","露","梦","澜","宁"]
+      }
+    },
+    worldviewBoost:{
+      all:[],
+      xianxia:["玄","灵","尘","霄","渊","衡","羽","瑶","清","岚"],
+      wuxia:["岳","行","川","墨","锋","岚","霁","青","影","舟"],
+      republic:["之","文","德","怀","志","明","若","兰","雅","清"],
+      western:["维","洛","泽","伊","兰","诺","艾","菲","亚","安"],
+      steam:["维","特","洛","格","森","匠","赫","恩","瓦","德"],
+      cyberpunk:["凌","序","域","流","弦","棱","曜","霁","焰","岚"],
+      campus:["晨","夏","晴","言","可","禾","希","宁","远","安"],
+      postapoc:["烬","荒","尘","夜","岱","岚","霜","砾","刃","影"],
+      abo:["祈","澄","屿","昭","岚","舟","曜","霁","棠","予"]
+    },
+    enFirst:{
+      male:["Aiden","Ethan","Noah","Liam","Kai","Rowan","Leon","Evan","Silas","Julian","Asher","Dorian"],
+      female:["Aria","Luna","Iris","Nora","Mila","Elena","Ayla","Clara","Vera","Selene","Freya","Evelyn"],
+      neutral:["River","Skyler","Avery","Morgan","Quinn","Sage","Nova","Reese","Jamie","Alex","Casey","Riley"]
+    },
+    enLast:{
+      common:["Smith","Clark","Miller","Hayes","Reed","Morgan","Bennett","Parker","Wright","Stone","Brooks","Cole"],
+      western:["Blackwood","Ashford","Ravens","Wyndham","Sterling","Fox","Hawthorne","Graves","Everett","Fletcher","Rowe","Thorne"],
+      steam:["Brass","Whitlock","Gearson","Hartwell","Crowley","Langley","Mercer","Abbott","Sinclair","Carver","Barton","Huxley"],
+      cyberpunk:["Kade","Nyx","Voss","Drake","Sato","Kiro","Vale","Rook","Cross","Nero","Vega","Arden"]
+    },
+    nickCore:["宁","岚","澄","羽","棠","璃","祈","曜","汐","柚","禾","昭","绾","霁","夏","舟","言","安","宥","星","梨","葵","雾","音","晴"]
+  };
+
+  function getLexicon(){
+    const extra=getLS(LS.lex,null);
+    if(!extra) return structuredClone(baseLex);
+    const L=structuredClone(baseLex);
+    const merge=(a,b)=>[...new Set([...(a||[]),...(b||[])])];
+    try{
+      if(extra.surnamePacks) for(const k of Object.keys(extra.surnamePacks)) L.surnamePacks[k]=merge(L.surnamePacks[k]||[],extra.surnamePacks[k]||[]);
+      if(extra.doubleSurnames) L.doubleSurnames=merge(L.doubleSurnames,extra.doubleSurnames);
+      if(extra.chars) for(const g of Object.keys(extra.chars)){ L.chars[g]=L.chars[g]||{}; for(const s of Object.keys(extra.chars[g])) L.chars[g][s]=merge(L.chars[g][s]||[],extra.chars[g][s]||[]); }
+      if(extra.worldviewBoost) for(const w of Object.keys(extra.worldviewBoost)) L.worldviewBoost[w]=merge(L.worldviewBoost[w]||[],extra.worldviewBoost[w]||[]);
+      if(extra.enFirst) for(const g of Object.keys(extra.enFirst)) L.enFirst[g]=merge(L.enFirst[g]||[],extra.enFirst[g]||[]);
+      if(extra.enLast) for(const p of Object.keys(extra.enLast)) L.enLast[p]=merge(L.enLast[p]||[],extra.enLast[p]||[]);
+      if(extra.nickCore) L.nickCore=merge(L.nickCore,extra.nickCore);
+    }catch{}
+    return L;
+  }
+
+  // ===== 黑名单 =====
+  const banDefault={chars:[],words:[],surnames:[]};
+  function getBan(){ return getLS(LS.ban, structuredClone(banDefault)); }
+  function saveBan(b){ setLS(LS.ban,b); }
+  function hitBanWord(s){ const b=getBan(), t=String(s||""); return b.words.some(w=>w && t.includes(w)); }
+  function hitBanChar(s){ const b=getBan(), t=String(s||""); return b.chars.some(c=>c && t.includes(c)); }
+
+  function renderBan(){
+    const b=getBan();
+    const draw=(id,type,list)=>{
+      const box=$(id);
+      if(!list.length){ box.innerHTML=`<span class="small">（空）</span>`; return; }
+      box.innerHTML=list.map(v=>`<span class="chip">${v}<button data-t="${type}" data-v="${v}">释放</button></span>`).join("");
+      box.querySelectorAll("button[data-t]").forEach(btn=>{
+        btn.onclick=()=>{
+          const bb=getBan();
+          bb[btn.dataset.t]=bb[btn.dataset.t].filter(x=>x!==btn.dataset.v);
+          saveBan(bb); renderBan(); setTip(`已释放：${btn.dataset.v}`);
+        };
+      });
+    };
+    draw("banCharList","chars",b.chars);
+    draw("banWordList","words",b.words);
+    draw("banSurnameList","surnames",b.surnames);
+  }
+
+  // ===== 命名核心 =====
+  const ziMap={"清":["怀瑾","子澄","景和"],"宁":["安之","知远","怀安"],"言":["子言","慎言","知言"],"昭":["明德","景明","昭远"],"澄":["清和","子澄","明澄"],"岚":["云起","景岚","怀岚"],"曜":["景曜","明远","曜之"],"瑾":["怀瑾","子瑜","景瑜"],"霁":["清霁","雨和","景霁"],"羽":["凌云","子羽","云程"],"舟":["行远","载川","子舟"],"文":["子文","文远","景文"]};
+  const ziFallback={male:["子衡","子谦","怀瑾","景行","叔明","敬之","元白","清和","伯言","修远","允执","昭远","知安"],female:["令仪","清妍","静姝","若芷","怀柔","昭华","清音","知微","雅和","婉清","映雪","若宁"],neutral:["子言","知行","清和","怀安","若水","明远","景和","元宁","闻溪","知微","予安"]};
+
+  function validSurnameInput(s){ return /^[\u4e00-\u9fa5]{1,2}$/.test(s); }
+
+  function styleResolved(style,era){
+    if(style!=="all") return style;
+    if(era==="ancient") return "ancient";
+    if(era==="republic") return "republic";
+    if(era==="modern") return "modern";
+    return pick(["ancient","modern","republic","fantasy"]);
+  }
+
+  function pickSurname(lex,opt){
+    const ban=getBan();
+    if(opt.lockSurname && validSurnameInput(opt.fixedSurname)){
+      if(ban.surnames.includes(opt.fixedSurname)) return null;
+      return opt.fixedSurname;
+    }
+    let pool=(lex.surnamePacks[opt.surnamePack]||lex.surnamePacks.common||[]).filter(s=>!ban.surnames.includes(s));
+    if(!pool.length) return null;
+    if((opt.era==="ancient"||opt.era==="republic") && Math.random()<0.1){
+      const ds=(lex.doubleSurnames||[]).filter(s=>!ban.surnames.includes(s));
+      if(ds.length) return pick(ds);
+    }
+    return pick(pool);
+  }
+
+  function weightedPool(lex,base,worldview){
+    const boost=(lex.worldviewBoost[worldview]||[]);
+    return [...base,...boost,...boost];
+  }
+
+  function pickZi(gender,given){
+    for(const c of given){ if(ziMap[c]) return pick(ziMap[c]); }
+    const g=gender==="all"?pick(["male","female","neutral"]):gender;
+    return pick(ziFallback[g]);
+  }
+
+  // 新增：匹配中文名是否为固定单字/双字名
+  function matchCnGivenLen(name,lenMode){
+    if(lenMode==="auto") return true;
+    const pure=String(name||"").replace(/（字[^）]+）/g,"");
+    const m=pure.match(/^[\u4e00-\u9fa5]{1,2}([\u4e00-\u9fa5]{1,2})$/);
+    if(!m) return false;
+    return m[1].length===Number(lenMode);
+  }
+
+  function cnNameScore(full){
+    const pure=String(full||"").replace(/（字[^）]+）/g,"");
+    const m=pure.match(/^([\u4e00-\u9fa5]{1,2})([\u4e00-\u9fa5]{1,2})$/);
+    if(!m) return 0;
+    let s=74;
+    const giv=m[2];
+    if(giv.length===2) s+=10; else s+=3;
+    if(/(.)\1/.test(giv)) s-=5;
+    if(/[之也乎者]/.test(giv)) s-=6;
+    if(/[机核栈阈模频矩熵铆铜轮]/.test(giv)) s-=22;
+    if(hitBanWord(full)||hitBanChar(full)) s=0;
+    return Math.max(0,Math.min(100,s));
+  }
+
+  function makeCnName(lex,opt){
+    const g=opt.gender==="all"?pick(["male","female","neutral"]):opt.gender;
+    const st=styleResolved(opt.style,opt.era);
+    const base=(lex.chars[g]&&lex.chars[g][st])?lex.chars[g][st]:(lex.chars[g].modern||[]);
+    const ban=getBan();
+
+    let pool=weightedPool(lex,base,opt.worldview).filter(ch=>!ban.chars.includes(ch) && !ban.words.includes(ch));
+    if(!pool.length) return "";
+
+    const sur=pickSurname(lex,opt);
+    if(!sur) return "";
+
+    // 修改：支持固定中文名 1 字或 2 字
+    const len=opt.cnGivenLen==="1"?1:(opt.cnGivenLen==="2"?2:(Math.random()<0.2?1:2));
+    let a=pick(pool), b=pick(pool), k=0;
+    while(a===b && k<8){ b=pick(pool); k++; }
+
+    if(opt.familyMode && len===2){
+      if(/^[\u4e00-\u9fa5]$/.test(opt.generationChar||"")) b=opt.generationChar;
+      else{
+        const gp=["之","文","景","承","明","远","安","宁","清","昭","云","和","知","怀","子","令","元","若","行","志"].filter(x=>!ban.chars.includes(x));
+        if(gp.length) b=pick(gp);
+      }
+    }
+
+    const giv=len===1?a:(a+b);
+    let full=sur+giv;
+    if(opt.withZi && (opt.era==="ancient"||opt.era==="republic")) full+=`（字${pickZi(g,giv)}）`;
+    if(hitBanWord(full)||hitBanChar(full)) return "";
+    return full;
+  }
+
+  function makeEnName(lex,opt){
+    const g=opt.gender==="all"?pick(["male","female","neutral"]):opt.gender;
+    const first=pick((lex.enFirst[g]||[]).length?lex.enFirst[g]:baseLex.enFirst[g]);
+    let out=first;
+    if(opt.enWithSurname){
+      let pack=opt.enLastPack||"common";
+      if(opt.worldview==="western") pack="western";
+      if(opt.worldview==="steam") pack="steam";
+      if(opt.worldview==="cyberpunk") pack="cyberpunk";
+      const pool=(lex.enLast[pack]||lex.enLast.common||[]);
+      out=`${first} ${pick(pool)}`;
+    }
+    return hitBanWord(out)?"":out;
+  }
+
+  function makeNick(lex){
+    const core=pick(lex.nickCore||baseLex.nickCore);
+    const tails=["宝","崽","酱","儿","咪"];
+    const r=Math.random();
+    const n=r<0.45?core+core:(r<0.7?"小"+core:(r<0.9?"阿"+core:core+pick(tails)));
+    return (hitBanWord(n)||hitBanChar(n))?"":n;
+  }
+
+  function cnToEnSeed(cn){
+    const m={"刘":"Liu","王":"Wang","李":"Li","张":"Zhang","陈":"Chen","杨":"Yang","赵":"Zhao","黄":"Huang","周":"Zhou","吴":"Wu","清":"Qing","宁":"Ning","昭":"Zhao","岚":"Lan","澄":"Cheng","言":"Yan","安":"An","祈":"Qi","棠":"Tang","曜":"Yao","汐":"Xi","文":"Wen"};
+    const out=[]; for(const c of (cn||"")) if(m[c]) out.push(m[c]); return out.join(" ");
+  }
+
+  function deriveEnNickFromResult(list){
+    const out=[];
+    list.forEach(n=>{
+      const pure=n.replace(/（字[^）]+）/g,"");
+      const seed=cnToEnSeed(pure);
+      let x="";
+      if(seed){
+        const p=seed.split(/\s+/).filter(Boolean);
+        const h=p[0]||"Kai";
+        x=Math.random()<0.5?h:(h+"y");
+      }else{
+        x=pick(["Kay","Nia","Lio","Ari","Mio","Rin","Noa","Kiki","Lulu","Nini","Coco"]);
+      }
+      out.push(x);
+    });
+    return [...new Set(out)];
+  }
+
+  function dedupeWindow(str){ return str==="weak"?60:(str==="strong"?240:140); }
+
+  function uniqRecent(names,strength){
+    const win=dedupeWindow(strength), recent=getLS(LS.recent,[]);
+    const set=new Set(recent.slice(-win));
+    const out=[];
+    for(const n of names){ if(!set.has(n)){ out.push(n); set.add(n);} }
+    setLS(LS.recent,[...recent,...out].slice(-300));
+    return out;
+  }
+
+  function checkCollision(name){
+    const fav=getLS(LS.fav,[]), his=getLS(LS.his,[]);
+    return fav.some(f=>f.name===name) || his.some(h=>(h.names||[]).includes(name));
+  }
+
+  // ===== AI =====
+  function getApiCfg(){ return getLS(LS.api,{base:"",key:"",model:"",temp:0.75}); }
+  function chatUrls(base){
+    const b=(base||"").trim().replace(/\/+$/,"");
+    if(!b) return [];
+    if(b.endsWith("/v1")) return [`${b}/chat/completions`,`${b.slice(0,-3)}/v1/chat/completions`,`${b.slice(0,-3)}/chat/completions`];
+    return [`${b}/v1/chat/completions`,`${b}/chat/completions`];
+  }
+  function modelEndpointUrls(base){
+    const b=(base||"").trim().replace(/\/+$/,"");
+    if(!b) return [];
+    if(b.endsWith("/v1")) return [`${b}/models`, `${b.slice(0,-3)}/v1/models`, `${b.slice(0,-3)}/models`];
+    return [`${b}/v1/models`, `${b}/models`];
+  }
+
+  async function pullModelsForApiSetting(){
+    const base=$("apiBase").value.trim();
+    const key=$("apiKey").value.trim();
+    if(!base) return setTip("请先填写API地址");
+
+    const headers={};
+    if(key) headers["Authorization"]=`Bearer ${key}`;
+
+    for(const u of modelEndpointUrls(base)){
+      try{
+        const r=await fetch(u,{method:"GET",headers});
+        if(!r.ok) continue;
+        const d=await r.json();
+        let models=[];
+        if(Array.isArray(d?.data)) models=d.data.map(x=>x?.id).filter(Boolean);
+        if(!models.length && Array.isArray(d?.models)) models=d.models.map(x=>typeof x==="string"?x:x?.id).filter(Boolean);
+        if(!models.length && Array.isArray(d)) models=d.map(x=>typeof x==="string"?x:x?.id).filter(Boolean);
+
+        const sel=$("apiModelSelect");
+        sel.innerHTML="";
+        if(!models.length){
+          sel.innerHTML=`<option value="">未拉到模型（可手填）</option>`;
+        }else{
+          models.forEach(m=>{
+            const op=document.createElement("option");
+            op.value=m; op.textContent=m;
+            sel.appendChild(op);
+          });
+          $("apiModelManual").value=models[0];
+        }
+        setTip("模型拉取成功");
+        return;
+      }catch{}
+    }
+    setTip("拉取失败，可手填模型");
+  }
+
+  async function aiGenerate(opt){
+    const cfg=getApiCfg();
+    if(!cfg.base || !cfg.key || !cfg.model) return null;
+
+    const b=getBan();
+    const banDesc=`字黑名单:${b.chars.join("、")||"无"}；词黑名单:${b.words.join("、")||"无"}；姓氏黑名单:${b.surnames.join("、")||"无"}`;
+    const modeText = opt.mode==="cn"?"中文人名":(opt.mode==="en"?"英文名":"中文昵称");
+    const worldTxt = (opt.customWorldText||"").trim() || "无";
+    const surRule=(opt.mode==="cn"&&opt.lockSurname&&validSurnameInput(opt.fixedSurname))?`姓氏固定为“${opt.fixedSurname}”。`:"";
+    const ziRule=(opt.mode==="cn"&&opt.withZi&&(opt.era==="ancient"||opt.era==="republic"))?"可输出格式：张三（字某某）。":"";
+    const enRule=(opt.mode==="en"&&opt.enWithSurname)?"英文名必须是 First Last。":"";
+    const lenRule=(opt.mode==="cn"&&opt.cnGivenLen==="1")
+      ? "名字必须为单字名（姓后1字）。"
+      : ((opt.mode==="cn"&&opt.cnGivenLen==="2")
+      ? "名字必须为双字名（姓后2字）。"
+      : "");
+
+    const prompt=`输出${opt.batchCount}个${modeText}，每行一个，不编号不解释。
+风格:${opt.style}；世界观预设:${opt.worldview}；自定义世界观:${worldTxt}；时代:${opt.era}；性别:${opt.gender}。
+规则：真实可用、禁止机器感。${surRule}${ziRule}${enRule}${lenRule}
+必须遵守黑名单：${banDesc}`;
+
+    const payload={
+      model:cfg.model,
+      temperature:Number(cfg.temp||0.75),
+      max_tokens:900,
+      messages:[
+        {role:"system",content:"你是命名助手，只返回名字列表，不解释。"},
+        {role:"user",content:prompt}
+      ]
+    };
+
+    const headers={"Content-Type":"application/json","Authorization":"Bearer "+cfg.key};
+    for(const u of chatUrls(cfg.base)){
+      try{
+        const r=await fetch(u,{method:"POST",headers,body:JSON.stringify(payload)});
+        if(!r.ok) continue;
+        const d=await r.json();
+        const txt=d?.choices?.[0]?.message?.content || d?.text || "";
+        if(!txt) continue;
+        let arr=txt.split(/\n+/).map(s=>s.replace(/^\d+[\.、\s]*/,"").trim()).filter(Boolean);
+        arr=arr.filter(x=>!hitBanWord(x)&&!hitBanChar(x));
+        if(opt.mode==="cn") arr=arr.filter(x=>matchCnGivenLen(x,opt.cnGivenLen));
+        return arr;
+      }catch{}
+    }
+    return null;
+  }
+
+  // ===== 收藏系统 =====
+  function getGroups(){ return getLS(LS.groups,["默认"]); }
+  function setGroups(g){ setLS(LS.groups,[...new Set(g)].filter(Boolean)); }
+  function renderGroupSelects(){
+    const groups=getGroups();
+    const opts=groups.map(g=>`<option value="${g}">${g}</option>`).join("");
+    $("favGroupSelect").innerHTML=opts;
+    $("viewGroupFilter").innerHTML=`<option value="all">全部</option>${opts}`;
+  }
+
+  function addFav(name,group,tags){
+    const fav=getLS(LS.fav,[]);
+    if(fav.some(x=>x.name===name)) return;
+    fav.unshift({name,group:group||"默认",tags:tags||[],time:now()});
+    setLS(LS.fav,fav.slice(0,600));
+    renderFav();
+  }
+  function delFav(name){
+    setLS(LS.fav,getLS(LS.fav,[]).filter(x=>x.name!==name));
+    renderFav();
+  }
+
+  function renderFav(){
+    const fav=getLS(LS.fav,[]);
+    const gf=$("viewGroupFilter").value||"all";
+    const tf=($("viewTagFilter").value||"").trim();
+    const list=fav.filter(f=>(gf==="all"||f.group===gf)&&(!tf||(f.tags||[]).includes(tf)));
+    if(!list.length){ favList.innerHTML=`<div class="item small">（暂无收藏）</div>`; return; }
+
+    favList.innerHTML=list.map(f=>`
+      <div class="item row" style="justify-content:space-between">
+        <div>
+          <div class="name" style="font-size:18px">${f.name}</div>
+          <div class="small">分组：${f.group} ${(f.tags||[]).map(t=>`<span class="tag">${t}</span>`).join("")}</div>
+        </div>
+        <div class="row">
+          <button data-c="${f.name}">复制</button>
+          <button data-d="${f.name}">移除</button>
+        </div>
+      </div>
+    `).join("");
+
+    favList.querySelectorAll("button[data-c]").forEach(b=>b.onclick=async()=>{await navigator.clipboard.writeText(b.dataset.c); setTip("已复制");});
+    favList.querySelectorAll("button[data-d]").forEach(b=>b.onclick=()=>delFav(b.dataset.d));
+  }
+
+  function renderHistory(){
+    const his=getLS(LS.his,[]);
+    if(!his.length){ hisList.innerHTML=`<div class="item small">（暂无历史）</div>`; return; }
+    hisList.innerHTML=his.map(h=>`
+      <div class="item">
+        <div class="small">${h.time} · ${h.mode} · ${h.style} · ${h.worldview} · ${h.era} · ${h.gender} ${h.ai?"·AI":""}</div>
+        <div>${h.names.join(" / ")}</div>
+      </div>
+    `).join("");
+  }
+  function pushHistory(h){
+    const his=getLS(LS.his,[]);
+    his.unshift(h);
+    setLS(LS.his,his.slice(0,240));
+    renderHistory();
+  }
+
+  function collectOpt(){
+    return {
+      mode:$("mode").value,
+      engine:$("engine").value,
+      style:$("style").value,
+      worldview:$("worldview").value,
+      era:$("era").value,
+      gender:$("gender").value,
+      cnGivenLen:$("cnGivenLen").value,
+      displayCount:Number($("displayCount").value),
+      batchCount:Number($("batchCount").value),
+      dedupeStrength:$("dedupeStrength").value,
+      scoreThreshold:Number($("scoreThreshold").value),
+      withZi:$("withZi").checked,
+      surnamePack:$("surnamePack").value,
+      fixedSurname:$("fixedSurname").value.trim(),
+      lockSurname:$("lockSurname").checked,
+      enWithSurname:$("enWithSurname").checked,
+      enLastPack:$("enLastPack").value,
+      familyMode:$("familyMode").checked,
+      generationChar:$("generationChar").value.trim(),
+      tempExcludeChars:$("tempExcludeChars").value.trim(),
+      tempExcludeWords:$("tempExcludeWords").value.trim(),
+      customWorldText:$("customWorldText").value.trim(),
+      cnRefForEn:$("cnRefForEn").value.trim()
+    };
+  }
+
+  function validateOpt(o){
+    if(o.lockSurname && !validSurnameInput(o.fixedSurname)) return "固定姓氏需1-2中文字符";
+    if(o.generationChar && !/^[\u4e00-\u9fa5]$/.test(o.generationChar)) return "辈分字必须1个中文字符";
+    return "";
+  }
+
+  function makeBatchLocal(opt){
+    const lex=getLexicon();
+    const out=[];
+    let guard=0;
+    while(out.length<opt.batchCount && guard<2500){
+      guard++;
+      let n="";
+      if(opt.mode==="cn"){
+        n=makeCnName(lex,opt);
+        if(!n) continue;
+        if(hitTempExclude(n,opt.tempExcludeChars,opt.tempExcludeWords)) continue;
+      }else if(opt.mode==="en"){
+        if(opt.cnRefForEn && Math.random()<0.2){
+          const seed=cnToEnSeed(opt.cnRefForEn);
+          if(seed) n=opt.enWithSurname ? `${seed} ${pick((lex.enLast[opt.enLastPack]||lex.enLast.common))}` : seed.split(" ")[0];
+        }
+        if(!n) n=makeEnName(lex,opt);
+      }else{
+        n=makeNick(lex);
+      }
+      if(!n) continue;
+      if(!hitBanWord(n) && !hitBanChar(n) && !out.includes(n)) out.push(n);
+    }
+    return out;
+  }
+
+  function rankAndSelect(opt,batch){
+    let rows=batch.map(n=>{
+      let s=80;
+      if(opt.mode==="cn") s=cnNameScore(n);
+      if(opt.mode==="en") s=/^[A-Za-z][A-Za-z'\-]+(\s+[A-Za-z][A-Za-z'\-]+)?$/.test(n)?84:48;
+      if(opt.mode==="nick") s=n.length<=4?82:64;
+      if(checkCollision(n)) s-=6;
+      if(hitBanWord(n)||hitBanChar(n)) s=0;
+      return {name:n,score:s,collision:checkCollision(n)};
+    });
+
+    let thr=opt.scoreThreshold;
+    let selected=[];
+    while(thr>=50){
+      selected=rows.filter(r=>r.score>=thr);
+      if(selected.length>=opt.displayCount) break;
+      thr-=3;
+    }
+    if(thr<opt.scoreThreshold) setTip(`高分不足，阈值自动降至 ${thr}`);
+
+    selected.sort((a,b)=>b.score-a.score);
+    const deduped=uniqRecent(selected.map(x=>x.name),opt.dedupeStrength);
+    return deduped.slice(0,opt.displayCount).map(n=>selected.find(x=>x.name===n)).filter(Boolean);
+  }
+
+  function renderResults(rows){
+    if(!rows.length){ resultList.innerHTML=`<div class="item small">（无可展示结果，请放宽条件）</div>`; return; }
+    resultList.innerHTML=rows.map(r=>`
+      <div class="item row" style="justify-content:space-between">
+        <div>
+          <div class="name">${r.name}</div>
+          <div class="small">质量：${r.score}${r.collision?` <span class="warn">可能重名</span>`:""}</div>
+        </div>
+        <div class="row">
+          <button data-c="${r.name}">复制</button>
+          <button data-f="${r.name}">收藏</button>
+        </div>
+      </div>
+    `).join("");
+
+    resultList.querySelectorAll("button[data-c]").forEach(b=>b.onclick=async()=>{await navigator.clipboard.writeText(b.dataset.c); setTip("已复制");});
+    resultList.querySelectorAll("button[data-f]").forEach(b=>b.onclick=()=>{
+      const group=$("favGroupSelect").value||"默认";
+      const tags=($("favTagsInput").value||"").split(/[，,]/).map(x=>x.trim()).filter(Boolean);
+      addFav(b.dataset.f,group,tags); setTip("已收藏");
+    });
+  }
+
+  async function generateFlow(){
+    const opt=collectOpt();
+    const err=validateOpt(opt);
+    if(err) return setTip(err);
+
+    setLS(LS.opts,{
+      surnamePack:opt.surnamePack,fixedSurname:opt.fixedSurname,lockSurname:opt.lockSurname,
+      enWithSurname:opt.enWithSurname,enLastPack:opt.enLastPack
+    });
+
+    setTip("生成中...");
+    let batch=[], usedAI=false;
+
+    const apiReady=(()=>{const c=getApiCfg(); return !!(c.base&&c.key&&c.model)})();
+    const shouldAI = (opt.engine==="ai") || (opt.engine==="auto" && apiReady && (opt.worldview!=="all" || opt.customWorldText));
+
+    if(shouldAI){
+      const ai=await aiGenerate(opt);
+      if(ai && ai.length){
+        const local=makeBatchLocal(opt);
+        const aiTake=Math.max(1,Math.floor(opt.batchCount*0.35));
+        batch=[...ai.slice(0,aiTake), ...local].slice(0,opt.batchCount);
+        usedAI=true;
+      }
+    }
+    if(!batch.length) batch=makeBatchLocal(opt);
+
+    const finalRows=rankAndSelect(opt,batch);
+    renderResults(finalRows);
+
+    pushHistory({
+      time:now(), mode:opt.mode, style:opt.style, worldview:opt.worldview, era:opt.era, gender:opt.gender,
+      ai:usedAI, names:finalRows.map(x=>x.name)
+    });
+
+    setTip(usedAI?"完成（AI+本地）":"完成（本地）");
+  }
+
+  // ===== 事件 =====
+  $("btnGenerate").onclick=generateFlow;
+  $("btnClearResult").onclick=()=> resultList.innerHTML=`<div class="item small">（结果已清空）</div>`;
+
+  $("btnCopyAll").onclick=async()=>{
+    const names=[...resultList.querySelectorAll(".name")].map(x=>x.textContent.trim()).filter(Boolean);
+    if(!names.length) return setTip("没有可复制内容");
+    await navigator.clipboard.writeText(names.join("\n"));
+    setTip("已复制全部");
+  };
+
+  $("btnSaveAllFav").onclick=()=>{
+    const names=[...resultList.querySelectorAll(".name")].map(x=>x.textContent.trim()).filter(Boolean);
+    if(!names.length) return setTip("没有可收藏内容");
+    const group=$("favGroupSelect").value||"默认";
+    const tags=($("favTagsInput").value||"").split(/[，,]/).map(x=>x.trim()).filter(Boolean);
+    names.forEach(n=>addFav(n,group,tags));
+    setTip("已全部收藏");
+  };
+
+  $("btnClearFav").onclick=()=>{ if(confirm("清空收藏？")){ setLS(LS.fav,[]); renderFav(); } };
+  $("btnClearHis").onclick=()=>{ if(confirm("清空历史？")){ setLS(LS.his,[]); renderHistory(); } };
+
+  // 分组
+  $("btnAddGroup").onclick=()=>{
+    const n=($("newGroupInput").value||"").trim();
+    if(!n) return;
+    const g=getLS(LS.groups,["默认"]);
+    if(!g.includes(n)) g.push(n);
+    setLS(LS.groups,g); renderGroupSelects(); $("newGroupInput").value="";
+    setTip("分组已新增");
+  };
+
+  $("btnDelGroup").onclick=()=>{
+    const cur=$("favGroupSelect").value;
+    if(cur==="默认") return setTip("默认分组不可删除");
+    const g=getLS(LS.groups,["默认"]).filter(x=>x!==cur);
+    setLS(LS.groups,g);
+    const fav=getLS(LS.fav,[]).map(f=>f.group===cur?({...f,group:"默认"}):f);
+    setLS(LS.fav,fav);
+    renderGroupSelects(); renderFav(); setTip("分组已删除");
+  };
+
+  $("viewGroupFilter").onchange=renderFav;
+  $("viewTagFilter").oninput=renderFav;
+
+  // 黑名单
+  $("btnAddBanChar").onclick=()=>{
+    const v=($("banCharInput").value||"").trim();
+    if(!/^[\u4e00-\u9fa5]$/.test(v)) return setTip("字黑名单需1个中文字符");
+    const b=getBan(); if(!b.chars.includes(v)) b.chars.push(v); saveBan(b);
+    $("banCharInput").value=""; renderBan(); setTip("已拉黑字");
+  };
+  $("btnAddBanWord").onclick=()=>{
+    const v=($("banWordInput").value||"").trim();
+    if(!v) return;
+    const b=getBan(); if(!b.words.includes(v)) b.words.push(v); saveBan(b);
+    $("banWordInput").value=""; renderBan(); setTip("已拉黑词");
+  };
+  $("btnAddBanSurname").onclick=()=>{
+    const v=($("banSurnameInput").value||"").trim();
+    if(!/^[\u4e00-\u9fa5]{1,2}$/.test(v)) return setTip("姓氏黑名单需1-2中文字符");
+    const b=getBan(); if(!b.surnames.includes(v)) b.surnames.push(v); saveBan(b);
+    $("banSurnameInput").value=""; renderBan(); setTip("已拉黑姓");
+  };
+  $("btnClearBan").onclick=()=>{ if(confirm("清空黑名单？")){ saveBan(structuredClone(banDefault)); renderBan(); setTip("黑名单已清空"); } };
+
+  $("btnExportBan").onclick=()=>downloadJSON("blacklist.json",getBan());
+  $("btnImportBan").onclick=()=>{
+    const f=$("importBanFile").files?.[0];
+    if(!f) return setTip("先选JSON文件");
+    const rd=new FileReader();
+    rd.onload=()=>{
+      try{
+        const o=JSON.parse(String(rd.result||"{}"));
+        const b=getBan();
+        b.chars=[...new Set([...(b.chars||[]), ...((o.chars||[]).filter(x=>/^[\u4e00-\u9fa5]$/.test(x)))])];
+        b.words=[...new Set([...(b.words||[]), ...((o.words||[]).map(x=>String(x).trim()).filter(Boolean))])];
+        b.surnames=[...new Set([...(b.surnames||[]), ...((o.surnames||[]).filter(x=>/^[\u4e00-\u9fa5]{1,2}$/.test(x)))])];
+        saveBan(b); renderBan(); setTip("黑名单导入成功");
+      }catch{ setTip("黑名单JSON格式错误"); }
+    };
+    rd.readAsText(f,"utf-8");
+  };
+
+  // 词库包
+  $("btnExportLexicon").onclick=()=>downloadJSON("lexicon_pack.json",getLexicon());
+  $("btnImportLexicon").onclick=()=>{
+    const f=$("importLexiconFile").files?.[0];
+    if(!f) return setTip("先选JSON文件");
+    const rd=new FileReader();
+    rd.onload=()=>{
+      try{
+        const obj=JSON.parse(String(rd.result||"{}"));
+        const cur=getLS(LS.lex,{});
+        setLS(LS.lex,Object.assign({},cur,obj));
+        setTip("词库包导入成功（已追加）");
+      }catch{ setTip("词库包JSON格式错误"); }
+    };
+    rd.readAsText(f,"utf-8");
+  };
+
+  // 英文派生昵称
+  $("btnEnDerive").onclick=()=>{
+    const names=[...resultList.querySelectorAll(".name")].map(x=>x.textContent.trim()).filter(Boolean);
+    if(!names.length) return setTip("先生成名字");
+    const nick=deriveEnNickFromResult(names);
+    resultList.innerHTML=nick.map(n=>`
+      <div class="item row" style="justify-content:space-between">
+        <div class="name">${n}</div>
+        <div class="row"><button data-c="${n}">复制</button><button data-f="${n}">收藏</button></div>
+      </div>
+    `).join("");
+    resultList.querySelectorAll("button[data-c]").forEach(b=>b.onclick=async()=>{await navigator.clipboard.writeText(b.dataset.c); setTip("已复制");});
+    resultList.querySelectorAll("button[data-f]").forEach(b=>b.onclick=()=>{
+      const group=$("favGroupSelect").value||"默认";
+      const tags=($("favTagsInput").value||"").split(/[，,]/).map(x=>x.trim()).filter(Boolean);
+      addFav(b.dataset.f,group,tags); setTip("已收藏");
+    });
+    setTip("已生成英文派生昵称");
+  };
+
+  // reset
+  $("btnResetAll").onclick=()=>{
+    if(!confirm("恢复默认（不清空收藏/历史），继续？")) return;
+    $("mode").value="cn"; $("engine").value="auto"; $("style").value="all"; $("worldview").value="all"; $("era").value="all"; $("gender").value="all";
+    $("cnGivenLen").value="auto";
+    $("displayCount").value="5"; $("batchCount").value="30"; $("dedupeStrength").value="mid"; $("scoreThreshold").value="65";
+    $("withZi").checked=false;
+    $("surnamePack").value="common"; $("fixedSurname").value=""; $("lockSurname").checked=false;
+    $("enWithSurname").checked=false; $("enLastPack").value="common"; $("familyMode").checked=false; $("generationChar").value="";
+    $("tempExcludeChars").value=""; $("tempExcludeWords").value=""; $("customWorldText").value=""; $("cnRefForEn").value="";
+    setTip("已恢复默认");
+  };
+
+  // API modal + 拉模型
+  const apiModal=$("apiModal");
+
+  $("btnOpenApi").onclick=()=>{
+    const c=getLS(LS.api,{base:"",key:"",model:"",temp:0.75});
+    $("apiBase").value=c.base||"";
+    $("apiKey").value=c.key||"";
+    $("apiModelManual").value=c.model||"";
+    $("apiModelSelect").innerHTML=`<option value="${c.model||""}">${c.model||"请拉取模型或手填"}</option>`;
+    $("apiTempRange").value = c.temp ?? 0.75;
+    $("apiTempLabel").textContent = Number($("apiTempRange").value).toFixed(2);
+    apiModal.classList.add("show");
+  };
+
+  $("apiTempRange").oninput=()=>{
+    $("apiTempLabel").textContent=Number($("apiTempRange").value).toFixed(2);
+  };
+
+  $("btnPullModels").onclick=pullModelsForApiSetting;
+  $("apiModelSelect").onchange=()=> $("apiModelManual").value = $("apiModelSelect").value || "";
+  $("btnCloseApi").onclick=()=> apiModal.classList.remove("show");
+
+  $("btnSaveApi").onclick=()=>{
+    setLS(LS.api,{
+      base:$("apiBase").value.trim(),
+      key:$("apiKey").value.trim(),
+      model:($("apiModelManual").value || $("apiModelSelect").value || "").trim(),
+      temp:Number($("apiTempRange").value || 0.75)
+    });
+    setTip("AI设置已保存");
+  };
+
+  function downloadJSON(name,obj){
+    const blob=new Blob([JSON.stringify(obj,null,2)],{type:"application/json;charset=utf-8"});
+    const u=URL.createObjectURL(blob), a=document.createElement("a");
+    a.href=u; a.download=name; a.click(); URL.revokeObjectURL(u);
+  }
+
+  function renderGroupSelects(){
+    const groups=getLS(LS.groups,["默认"]);
+    if(!groups.length) setLS(LS.groups,["默认"]);
+    const gs=getLS(LS.groups,["默认"]);
+    const opts=gs.map(g=>`<option value="${g}">${g}</option>`).join("");
+    $("favGroupSelect").innerHTML=opts;
+    $("viewGroupFilter").innerHTML=`<option value="all">全部</option>${opts}`;
+  }
+
+  function init(){
+    if(!getLS(LS.groups,null)) setLS(LS.groups,["默认"]);
+    const o=getLS(LS.opts,{});
+    if(o.surnamePack) $("surnamePack").value=o.surnamePack;
+    $("fixedSurname").value=o.fixedSurname||"";
+    $("lockSurname").checked=!!o.lockSurname;
+    $("enWithSurname").checked=!!o.enWithSurname;
+    if(o.enLastPack) $("enLastPack").value=o.enLastPack;
+
+    renderGroupSelects();
+    renderBan();
+    renderFav();
+    renderHistory();
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
